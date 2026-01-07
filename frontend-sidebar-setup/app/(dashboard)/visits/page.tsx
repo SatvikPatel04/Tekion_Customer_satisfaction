@@ -544,7 +544,7 @@ export default function VisitsPage() {
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-6">
+                <div className="bg-linear-to-r from-primary/10 to-primary/5 rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h3 className="text-2xl font-bold">Risk Score: {analysis.riskScore}</h3>
