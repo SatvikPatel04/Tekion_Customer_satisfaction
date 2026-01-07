@@ -300,7 +300,7 @@ export default function LandingPage() {
               </h2>
               <div className="space-y-6">
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                     <TrendingUp className="h-6 w-6 text-teal-600" />
                   </div>
                   <div>
@@ -315,7 +315,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                     <Clock className="h-6 w-6 text-teal-600" />
                   </div>
                   <div>
@@ -330,7 +330,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                     <BarChart3 className="h-6 w-6 text-teal-600" />
                   </div>
                   <div>
@@ -345,7 +345,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
+                  <div className="shrink-0 w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
                     <Shield className="h-6 w-6 text-teal-600" />
                   </div>
                   <div>
