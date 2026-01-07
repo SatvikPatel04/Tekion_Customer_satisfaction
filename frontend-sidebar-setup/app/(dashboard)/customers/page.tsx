@@ -130,14 +130,22 @@ function CustomerAnalysis() {
     setLoading(true)
     try {
       const customerRes = await fetch(`${API_BASE_URL}/customers/${customerId}`)
-      const visitsRes = await fetch(`${API_BASE_URL}/visits?customerId=${customerId}`)
+      const visitsRes = await fetch(`${API_BASE_URL}/visits`)
 
       if (customerRes.ok && visitsRes.ok) {
         const customerData = await customerRes.json()
-        const visitsData = await visitsRes.json()
+        const allVisitsData = await visitsRes.json()
+
+        // Filter visits for the selected customer only
+        const customerVisits = Array.isArray(allVisitsData)
+          ? allVisitsData.filter((visit: Visit) => {
+              const visitCustomerId = typeof visit.customerId === "object" ? visit.customerId._id : visit.customerId
+              return visitCustomerId === customerId
+            })
+          : []
 
         setSelectedCustomer(customerData)
-        setVisits(Array.isArray(visitsData) ? visitsData : [])
+        setVisits(customerVisits)
       }
     } catch (error) {
       console.log("[v0] Failed to fetch analysis:", error)

@@ -8,22 +8,50 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-const API_BASE_URL = "http://localhost:5000/api"
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"
 
 function calculateVisitRiskScore(visit: any) {
-  let score = 100
-  if (visit.feedback?.feedbackProvided) {
-    const stars = visit.feedback.stars || 0
-    if (stars <= 2) score -= 40
-    else if (stars === 3) score -= 20
-    else if (stars === 4) score -= 5
+  let score = 0
+
+  // Feedback scoring (0-40 points)
+  if (visit.feedback?.feedbackProvided && visit.feedback.stars) {
+    const stars = visit.feedback.stars
+    if (stars === 5) score += 40
+    else if (stars === 4) score += 30
+    else if (stars === 3) score += 15
+    else if (stars === 2) score += 5
+    else score += 0
   }
-  if (visit.complaint?.complaintRaised) score -= 30
-  if (visit.price > 5000) score -= 10
+
+  // Service delay scoring (0-30 points)
+  const delay = visit.serviceDelayInDays || 0
+  if (delay === 0) score += 30
+  else if (delay <= 1) score += 20
+  else if (delay <= 3) score += 10
+  else score += 0
+
+  // Price scoring (0-20 points)
+  if (visit.price <= 1000) score += 20
+  else if (visit.price <= 3000) score += 15
+  else if (visit.price <= 5000) score += 10
+  else score += 5
+
+  // Issue resolution (0-30 points)
+  if (visit.wasIssueResolved) score += 30
+  else score += 0
+
+  // Repeat issues penalty (subtract points)
+  const repeatPenalty = (visit.repeatIssues || 0) * 10
+  score -= repeatPenalty
+
+  const finalScore = Math.max(0, Math.min(130, score))
+
   let level = "SAFE"
-  if (score < 80) level = "AT RISK"
-  if (score < 50) level = "CRITICAL"
-  return { riskScore: Math.max(0, score), riskLevel: level }
+  if (finalScore >= 90) level = "SAFE"
+  else if (finalScore >= 60) level = "AT RISK"
+  else level = "CRITICAL"
+
+  return { riskScore: finalScore, riskLevel: level }
 }
 
 export default function DealershipsPage() {
@@ -70,7 +98,7 @@ export default function DealershipsPage() {
       try {
         const [dealershipRes, visitsRes] = await Promise.all([
           fetch(`${API_BASE_URL}/dealerships/${selectedDealership}`),
-          fetch(`${API_BASE_URL}/visits?dealershipId=${selectedDealership}`),
+          fetch(`${API_BASE_URL}/visits`),
         ])
 
         if (!dealershipRes.ok || !visitsRes.ok) {
@@ -78,10 +106,17 @@ export default function DealershipsPage() {
         }
 
         const dealershipData = await dealershipRes.json()
-        const visitsData = await visitsRes.json()
+        const allVisits = await visitsRes.json()
+
+        // Filter visits by dealership ID
+        const filteredVisits = allVisits.filter((visit: any) => {
+          const visitDealershipId =
+            typeof visit.dealershipId === "string" ? visit.dealershipId : visit.dealershipId?._id
+          return visitDealershipId === selectedDealership
+        })
 
         setDealershipData(dealershipData)
-        setVisits(visitsData)
+        setVisits(filteredVisits)
       } catch (err) {
         setError("Could not fetch dealership/visits data")
       } finally {
@@ -129,11 +164,11 @@ export default function DealershipsPage() {
   const avgScore = visitScores.length ? Math.round(riskSum / visitScores.length) : 0
   let totalLevel = "SAFE"
   let emoji = "🟢"
-  if (avgScore < 80) {
+  if (avgScore < 90 && avgScore >= 60) {
     totalLevel = "AT RISK"
     emoji = "🟠"
   }
-  if (avgScore < 50) {
+  if (avgScore < 60) {
     totalLevel = "CRITICAL"
     emoji = "🔴"
   }
