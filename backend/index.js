@@ -47,7 +47,6 @@ app.get('/api/dealerships/:id', async (req, res) => {
   }
 });
 
-
 // POST: Create one customer
 app.post('/api/customers', async (req, res) => {
   try {
@@ -117,7 +116,14 @@ app.get('/api/visits/:id', async (req, res) => {
   }
 });
 
-mongoose.connect('mongodb://localhost:27017/dealership-risk')
+const mongoUri = "mongodb+srv://221210103_db_user:tekion123@cluster0.irq1zk8.mongodb.net/carServiceDB?retryWrites=true&w=majority";
+
+if (!mongoUri) {
+  console.error('MONGO_URI is not defined in the environment variables.');
+  process.exit(1);
+}
+
+mongoose.connect(mongoUri)
   .then(() => {
     console.log('MongoDB connected');
     app.listen(PORT, () => console.log(`Backend running on port ${PORT}`));
